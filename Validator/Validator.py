@@ -1,8 +1,8 @@
 class Validator():
     def __init__(self):
         pass
-
-    def validateAttackInput(self, inputString):
+    @staticmethod
+    def validateAttackInput(inputString):
         errorString = ""
         if len(inputString) == 0 or len(inputString) > 2:
             errorString += "Invalid params!"

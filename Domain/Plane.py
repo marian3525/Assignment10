@@ -63,9 +63,10 @@ class Plane():
         :param size: The size of the matrix
         :return: A size*size matrix of zeroes
         """
-        matrix = [elem for i in range(2)]
-        matrix = [matrix for i in range(size)]
-        matrix = [matrix for i in range(size)]
+        matrix = numpy.zeros((size, size, 2), dtype=int)
+        for i in range(size):
+            for j in range(size):
+                matrix[i][j] = elem
         return matrix
 
     def destroy(self):

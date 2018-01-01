@@ -5,6 +5,11 @@ class CommandParser():
     def readCommand(self):
         cmd = input(">>>")
 
+        if cmd.find(" ")==-1:
+            self.__command = cmd
+            self.__params = []
+            return
+
         command = cmd[:cmd.find(" ")]
         command.strip(" ")
 
