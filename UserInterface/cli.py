@@ -1,4 +1,3 @@
-
 from Validator.Validator import Validator
 
 
@@ -9,13 +8,8 @@ class CLI():
         self.validator = validator
 
     def mainLoop(self):
-        player = True
 
         while True:
-            if player == True:
-                print("Player 1:")
-            else:
-                print("Player 2:")
 
             self.commandParser.readCommand()
             command = self.commandParser.getCommand()
@@ -29,17 +23,23 @@ class CLI():
                     # place the user's planes randomly
                     type = "random"
 
-                self.gameController.play(type) # start the game...
+                self.gameController.play(type)  # start the game...
+            elif command == "help":
+                self.__printHelp()
             elif command == "exit":
                 break
         return 0
 
     @staticmethod
-    def getAttackInput(self):
+    def getAttackInput():
+        """
+        :param self:
+        :return: [col, row]
+        """
         while True:
             try:
                 coords = input("Coords of the target (ex: B5): ")
-                #if int(coords) == -1:
+                # if int(coords) == -1:
                 #    return [-1, -1, -1]
                 if len(Validator.validateAttackInput(coords)) == 0:
                     if coords[0].islower():
@@ -54,6 +54,7 @@ class CLI():
             except ValueError:
                 print("Invalid input! Try again or -1 to exit")
                 continue
+
     @staticmethod
     def getPlaceInput():
         """
@@ -63,7 +64,7 @@ class CLI():
         while True:
             try:
                 coords = input("Coords of the plane (ex: B5): ")
-                #if int(coords) == -1:
+                # if int(coords) == -1:
                 #    return [-1, -1, -1]
                 rot = int(input("Rotations to the left: "))
                 if len(Validator.validateAttackInput(coords)) == 0:
@@ -87,20 +88,46 @@ class CLI():
         """
         matrix = [[0] * size for i in range(10)]
         return matrix
+
+    def __printHelp(self):
+        help = ""
+
+        help += "Planes game against the PC\n"
+        help += "Commands available:\n "
+        help += "*place rand/placed*: Place a player's planes randomly or it lets the player select the placement of a plane\n" \
+                "and its rotation\n E.g. place placed\n"
+        help += "**The game will ask each player to input the placement of the planes and input the coordinates of the tile\n" \
+                "that you wish to target.\n"
+        help += "**2 matrices will be displayed: your board and your targeting image which show your hits and misses \n" \
+                "(discovered tiles) on the enemy's board"
+        print(help)
+
     @staticmethod
-    def printMatrix(matrix, size):
+    def printMatrix(matrix, size, title):
         """
-        Prints a size*size matrix
+        Prints a size*size matrix with columns marked with A-H, lines from 1-8
         :param matrix: a size*size matrix
         :param size: int
+        :param title: string
         :return: None
         """
-        output = ""
-        for i in range(size):
-            for j in range(size):
-                output += str(matrix[i][j][0]) + " "
+        print(title)
+        output = "   "
+        for i in range(size + 1):
+            if i == 0:
+                for l in range(size):
+                    output += str(chr(65 + l) + " ")
             output += "\n"
+            for j in range(size + 1):
+                if j == 0 and i>0:
+                    output += str(i) + "| "
+                if i==0:
+                    output+="--"
+                if i>=1 and j>=1:
+                    output += str(matrix[i - 1][j - 1][0]) + " "
+
         print(output)
+        print("\n")
 
     @staticmethod
     def warn(string):

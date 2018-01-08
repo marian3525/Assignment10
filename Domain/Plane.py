@@ -1,14 +1,15 @@
 from copy import deepcopy
-
+import numpy
 
 class Plane():
-    def __init__(self, rotations, id):
+    def __init__(self, rotations, id, namingScheme):
         """
         A plane object stores the image of a plane and the number of rotations applied to it
         :param rotations: The number of rotations applied to the image, stored as %4 since 4 applied rotations is
                             identical to the original image
         :param id: the of the plane
         """
+        self.namingScheme = namingScheme
         self.__id = id # the id corresponding to all tiles belonging to the plane
         self.__image = self.__rotate(self.__getSource(), 5,
                                      rotations % 4)  # matrix of lists [tile_type, belongingPlane]
@@ -27,15 +28,13 @@ class Plane():
         """
         :return: The image of a plane, stored as a 5x5 matrix containing pairs [value, belonging_plane]
         """
-        image = [[[0, id], [0, id], [2, id], [0, id], [0, id]],
-                 [[1, id], [1, id], [1, id], [1, id], [1, id]],
-                 [[0, id], [0, id], [1, id], [0, id], [0, id]],
-                 [[0, id], [1, id], [1, id], [1, id], [0, id]],
-                 [[0, id], [0, id], [0, id], [0, id], [0, id]]]
+        image = [[[self.namingScheme["air"], id], [self.namingScheme["air"], id], [self.namingScheme["cockpit"], id], [self.namingScheme["air"], id], [self.namingScheme["air"], id]],
+                 [[self.namingScheme["frame"], id], [self.namingScheme["frame"], id], [self.namingScheme["frame"], id], [self.namingScheme["frame"], id], [self.namingScheme["frame"], id]],
+                 [[self.namingScheme["air"], id], [self.namingScheme["air"], id], [self.namingScheme["frame"], id], [self.namingScheme["air"], id], [self.namingScheme["air"], id]],
+                 [[self.namingScheme["air"], id], [self.namingScheme["frame"], id], [self.namingScheme["frame"], id], [self.namingScheme["frame"], id], [self.namingScheme["air"], id]],
+                 [[self.namingScheme["air"], id], [self.namingScheme["air"], id], [self.namingScheme["air"], id], [self.namingScheme["air"], id], [self.namingScheme["air"], id]]]
 
         return image
-
-
 
     def __rotate(self, mat, size, times):
         """

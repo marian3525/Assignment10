@@ -9,6 +9,7 @@ class TestGameController(unittest.TestCase):
     def setUp(self):
         self.gc = GameController()
         self.testMatrix = self.buildMatrix(8, 0)
+        self.__tileCode = {"air": 1, "frame": 2, "hit": 3, "cockpit": 4, "unknown": 0}
 
     def buildMatrix(self, size, elem):
         """
@@ -35,8 +36,8 @@ class TestGameController(unittest.TestCase):
         self.assertFalse(self.gc.planeFits(self.testMatrix, 3, 6))
         self.assertFalse(self.gc.planeFits(self.testMatrix, 0, 5))
 
-        self.testMatrix[3][4][0] = 1
-        self.testMatrix[5][2][0] = 1
+        self.testMatrix[3][4][0] = self.__tileCode["frame"]
+        self.testMatrix[5][2][0] = self.__tileCode["frame"]
 
         self.assertFalse(self.gc.planeFits(self.testMatrix, 0, 0))
         self.assertFalse(self.gc.planeFits(self.testMatrix, 1, 1))
@@ -48,35 +49,30 @@ class TestGameController(unittest.TestCase):
         self.assertFalse(self.gc.planeFits(self.testMatrix, 2, 2))
         self.assertFalse(self.gc.planeFits(self.testMatrix, 3, 2))
 
-        self.testMatrix[3][4][0] = 0
+        self.testMatrix[3][4][0] = self.__tileCode["air"]
 
         self.assertFalse(self.gc.planeFits(self.testMatrix, 2, 5))
         self.assertFalse(self.gc.planeFits(self.testMatrix, 2, 3))
 
     def testInsertPlane(self):
-        plane = Plane(0, 0)
+        plane = Plane(0, 0, self.__tileCode)
 
         testDestination = self.buildMatrix(8, 0)
 
         self.gc._insertPlane(testDestination, plane, 2, 2)
-        plane = Plane(1, 1)
+        plane = Plane(1, 1, self.__tileCode)
         self.gc._insertPlane(testDestination, plane, 5, 5)
 
         self.debugPrint(testDestination, 8)
 
-        self.assertEqual(testDestination[2][2][0], 1)
-        self.assertEqual(testDestination[0][2][0], 2)
-        self.assertEqual(testDestination[0][2][1], 0)
-        self.assertEqual(testDestination[5][3][0], 2)
-        self.assertEqual(testDestination[5][3][1], 1)
-        self.assertEqual(testDestination[7][4][0], 1)
-        self.assertEqual(testDestination[0][0][0], 0)
-        self.assertEqual(testDestination[3][5][0], 0)
+        self.assertEqual(testDestination[2][2][0], self.__tileCode["frame"])
+        self.assertEqual(testDestination[0][2][0], self.__tileCode["cockpit"])
+        self.assertEqual(testDestination[0][2][1], self.__tileCode["air"])
+        self.assertEqual(testDestination[5][3][0], self.__tileCode["cockpit"])
+        self.assertEqual(testDestination[5][3][1], self.__tileCode["frame"])
+        self.assertEqual(testDestination[7][4][0], self.__tileCode["frame"])
+        self.assertEqual(testDestination[0][0][0], self.__tileCode["air"])
+        self.assertEqual(testDestination[3][5][0], self.__tileCode["air"])
 
     def debugPrint(self, matrix, size):
-        output = ""
-        for i in range(size):
-            for j in range(size):
-                output += str(matrix[i][j][0]) + " "
-            output += "\n"
-        print(output)
+        pass
