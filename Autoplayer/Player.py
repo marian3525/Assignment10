@@ -58,16 +58,21 @@ class Player():
                         # 0 0 0 1 0
                         return [j + 1, i]
 
-        # not a standard case, pick and attack a random tile around the n-th tile found, which is !=-1
-        n = randint(49)
+        # not a standard case, pick and attack a random tile around the n-th tile found, which is not unknown or air
+        n = randint(1, 49)
         k = 0
         for i in range(1, 7):
             for j in range(1, 7):
-                if self.__target[i][j] is not -1:
+                if self.__target[i][j] is not self.__code["unknown"] and self.__target[i][j] is not self.__code["air"]:
                     k += 1
                 if k == n:
                     offset1 = randint(-1, 1)
                     offset2 = randint(-1, 1)
                     i += offset1
                     j += offset2
+
                     return [j,i]
+
+        # the board is empty, no tiles are known:
+        return [randint(0, 7), randint(0, 7)]
+

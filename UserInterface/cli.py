@@ -48,7 +48,7 @@ class CLI():
                         x = ord(coords[0]) - ord('A')
 
                     y = int(coords[1])
-                    return [x, y]
+                    return [x, y-1]
                 else:
                     raise ValueError
             except ValueError:
@@ -101,6 +101,9 @@ class CLI():
         help += "**2 matrices will be displayed: your board and your targeting image which show your hits and misses \n" \
                 "(discovered tiles) on the enemy's board"
         print(help)
+    @staticmethod
+    def _showSeparator():
+        print("==============================================================================")
 
     @staticmethod
     def printMatrix(matrix, size, title):

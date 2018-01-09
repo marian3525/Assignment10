@@ -6,10 +6,10 @@ class TestDomain(unittest.TestCase):
 
     def setUp(self):
         self.__tileCode = {"air": 1, "frame": 2, "hit": 3, "cockpit": 4, "unknown": 0}
-        self.plane = Plane(0, 0, self.__tileCode)
+
 
     def testRotatePlane(self):
-        plane = Plane(0, 0)
+        plane = Plane(0, 0, self.__tileCode)
         # 00200
         # 11111
         # 00100
@@ -30,10 +30,10 @@ class TestDomain(unittest.TestCase):
         self.assertEqual(plane.getImage()[0][0][0], self.__tileCode["air"])
         self.assertEqual(plane.getImage()[0][1][0], self.__tileCode["frame"])
         self.assertEqual(plane.getImage()[2][0][0], self.__tileCode["cockpit"])
-        self.assertEqual(plane.getImage()[4][1][0], self.__tileCOde["air"])
+        self.assertEqual(plane.getImage()[4][0][0], self.__tileCode["air"])
 
     def testBuildPlanes(self):
-        plane = Plane(0, 0)
+        plane = Plane(0, 0, self.__tileCode)
 
         self.assertEqual(plane.getImage()[0][0][0], self.__tileCode["air"])
         self.assertEqual(plane.getImage()[0][2][0], self.__tileCode["cockpit"])
@@ -44,7 +44,7 @@ class TestDomain(unittest.TestCase):
         # self.assertEqual(str(plane), "00200\n11111\n00100\n01110\n00000\n")
 
     def testDestroy(self):
-
+        self.plane = Plane(0, 0, self.__tileCode)
         self.assertEqual(self.plane.getImage()[0][0][0], self.__tileCode["air"])
         self.assertEqual(self.plane.getImage()[0][2][0], self.__tileCode["cockpit"])
         self.assertEqual(self.plane.getImage()[2][2][0], self.__tileCode["frame"])

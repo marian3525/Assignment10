@@ -16,13 +16,14 @@ class TestGameController(unittest.TestCase):
         :param size: The size of the matrix
         :return: A size*size matrix of zeroes
         """
-        matrix = numpy.zeros((size, size, 2), dtype=int)
+        matrix = numpy.zeros((size, size, 2), dtype=int, order='C')
         for i in range(size):
             for j in range(size):
                 matrix[i][j] = elem
         return matrix
 
     def testPlaneFits(self):
+        self.testMatrix = self.buildMatrix(8, self.__tileCode["air"])
         self.assertFalse(self.gc.planeFits(self.testMatrix, 0, 0))
         self.assertFalse(self.gc.planeFits(self.testMatrix, 1, 1))
 
@@ -57,7 +58,7 @@ class TestGameController(unittest.TestCase):
     def testInsertPlane(self):
         plane = Plane(0, 0, self.__tileCode)
 
-        testDestination = self.buildMatrix(8, 0)
+        testDestination = self.buildMatrix(8, self.__tileCode["air"])
 
         self.gc._insertPlane(testDestination, plane, 2, 2)
         plane = Plane(1, 1, self.__tileCode)
@@ -67,12 +68,27 @@ class TestGameController(unittest.TestCase):
 
         self.assertEqual(testDestination[2][2][0], self.__tileCode["frame"])
         self.assertEqual(testDestination[0][2][0], self.__tileCode["cockpit"])
-        self.assertEqual(testDestination[0][2][1], self.__tileCode["air"])
         self.assertEqual(testDestination[5][3][0], self.__tileCode["cockpit"])
-        self.assertEqual(testDestination[5][3][1], self.__tileCode["frame"])
+        self.assertEqual(testDestination[3][4][0], self.__tileCode["frame"])
         self.assertEqual(testDestination[7][4][0], self.__tileCode["frame"])
         self.assertEqual(testDestination[0][0][0], self.__tileCode["air"])
         self.assertEqual(testDestination[3][5][0], self.__tileCode["air"])
 
     def debugPrint(self, matrix, size):
-        pass
+        print("DEBUG")
+        output = "   "
+        for i in range(size + 1):
+            if i == 0:
+                for l in range(size):
+                    output += str(chr(65 + l) + " ")
+            output += "\n"
+            for j in range(size + 1):
+                if j == 0 and i > 0:
+                    output += str(i) + "| "
+                if i == 0:
+                    output += "--"
+                if i >= 1 and j >= 1:
+                    output += str(matrix[i - 1][j - 1][0]) + " "
+
+        print(output)
+        print("\n")

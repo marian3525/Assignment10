@@ -75,8 +75,8 @@ class Plane():
         """
         for i in range(5):
             for j in range(5):
-                if self.__image[i][j][0] != 0:
-                    self.__image[i][j][0] = 3
+                if self.__image[i][j][0] != self.namingScheme["air"]:
+                    self.__image[i][j][0] = self.namingScheme["hit"]
 
     def __str__(self):
         """

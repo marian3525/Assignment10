@@ -3,7 +3,7 @@ import numpy
 from Domain.Plane import Plane
 from random import randint
 from UserInterface.cli import CLI
-
+from Autoplayer.Player import Player
 
 class GameController():
     def __init__(self):
@@ -12,14 +12,14 @@ class GameController():
 
         self.__tileCode = {"air":1, "frame":2, "hit":3, "cockpit":4, "unknown":0}
         self.__lut = {}  # dictionary: key=the plane uid; value = Plane object at that position
-        self.__destroyedPlanes = []  # TODO saving the id of the dead planes in order to check if a hit is on such a plane
+        self.__destroyedPlanes = []  # saving the id of the dead planes in order to check if a hit is on such a plane
         self.__player1Matrix = self.__buildMatrix(8, self.__tileCode["air"])  # the matrix representing player 1's plane placement
         self.__player1Targeting = self.__buildMatrix(8,
                                                      self.__tileCode["unknown"])  # the matrix with the hits and misses of the first player
         self.__player2Matrix = self.__buildMatrix(8, self.__tileCode["air"])  # the matrix representing player 2's plane placement
         self.__player2Targeting = self.__buildMatrix(8,
                                                      self.__tileCode["unknown"])  # the matrix with the hits and misses of the second player
-
+        self.autoplayer = Player(self.__player2Targeting, self.__tileCode) # player object which will provide moves for the "AI"
     def play(self, type):
         """
         Initialize the game, allow input from both players and manage the results
@@ -37,6 +37,7 @@ class GameController():
                 self.player1Turn() # TODO display the board and the targeting image for the player here
             else:
                 self.player2Turn()
+            CLI._showSeparator()
             outcome = self.checkGameState()
 
         if outcome == "Player 1":
@@ -201,42 +202,58 @@ class GameController():
         :return: the type of tile hit (0 - air, 1 - airframe, 2 - cockpit, 3-hit)
         """
         if player == True:  # player1
-            if self.__player2Matrix[y][x] == self.__tileCode["cockpit"]:
-                self.destroyPlane(x,
+            if self.__player2Matrix[y][x][0] == self.__tileCode["cockpit"]:
+                self.destroyPlane(self.__player2Matrix, x,
                                   y)  # mark the entire plane as hit and update player1's targeting grid marking the cockpit as hit
-                self.__player1Targeting[y][x] = self.__tileCode["cockpit"]
+                self.__player1Targeting[y][x][0] = self.__tileCode["cockpit"]
+                self.destroyPlane(self.__player2Matrix, x,y)
 
-            elif self.__isHitOnDestroyedPlane(x, y):
-                self.__player1Targeting[y][x] = self.__tileCode["hit"]
+            elif self.__isHitOnDestroyedPlane(self.__player2Matrix, x, y):
+                self.__player1Targeting[y][x][0] = self.__tileCode["hit"]
 
-            elif self.__isHitOnAirframe(x, y):
-                self.__player1Targeting = self.__tileCode["hit"]
+            elif self.__isHitOnAirframe(self.__player2Matrix, x, y):
+                self.__player1Targeting[y][x][0] = self.__tileCode["hit"]
 
-            elif self.__isHitOnAir(x, y):
-                self.__player1Targeting[y][x] = self.__tileCode["air"]
+            elif self.__isHitOnAir(self.__player2Matrix, x, y):
+                self.__player1Targeting[y][x][0] = self.__tileCode["air"]
 
-        elif player == False:  # player2
-            if self.__player1Matrix[y][x] == self.__tileCode["cockpit"]:
-                self.destroyPlane(x, y)
+        elif player == False:  # player2--PC
+            if self.__player1Matrix[y][x][0] == self.__tileCode["cockpit"]:
+                self.__player2Targeting[y][x][0] = self.__tileCode["cockpit"]
+                self.destroyPlane(self.__player1Matrix, x, y)
 
-            elif self.__isHitOnDestroyedPlane(x, y):
-                self.__player2Targeting[y][x] = self.__tileCode["hit"]
+            elif self.__isHitOnDestroyedPlane(self.__player1Matrix, x, y):
+                self.__player2Targeting[y][x][0] = self.__tileCode["hit"]
 
-            elif self.___isHitOnAirframe(x, y):
-                self.__player2Targeting = self.__tileCode["hit"]
+            elif self.__isHitOnAirframe(self.__player1Matrix, x, y):
+                self.__player2Targeting[y][x][0] = self.__tileCode["hit"]
 
-            elif self.__isHitOnAir(x, y):
-                self.__player2Targeting[y][x] = self.__tileCode["air"]
+            elif self.__isHitOnAir(self.__player1Matrix, x, y):
+                self.__player2Targeting[y][x][0] = self.__tileCode["air"]
 
     def player1Turn(self):
         # get player input from the UI and fire accordingly
         CLI.printMatrix(self.__player1Matrix, 8, "PLAYER 1 BOARD:")
         CLI.printMatrix(self.__player1Targeting, 8, "Target image:")
         coords = CLI.getAttackInput()
+        self.fire(True, coords[0], coords[1])
 
     def player2Turn(self):
         #TODO ~player1, do not display the matrices as the player should not see the board of the opponent (PC)
-        pass
+        # enable only for debugging:
+        CLI.printMatrix(self.__player2Matrix, 8, "PLAYER 2 BOARD:")
+        CLI.printMatrix(self.__player2Targeting, 8, "Target image:")
+
+        coords = self.autoplayer.nextMove()
+        self.fire(False, coords[0], coords[1])
+
+    def destroyPlane(self, mat, x, y):
+        id = mat[y][x][1]
+
+        for i in range(8):
+            for j in range(8):
+                if mat[i][j][1] == id and mat[i][j][0] in [self.__tileCode["frame"], self.__tileCode["cockpit"]]:
+                    mat[i][j][0] = self.__tileCode["hit"]
 
     def checkGameState(self):
         """
@@ -247,10 +264,10 @@ class GameController():
 
         for i in range(8):
             for j in range(8):
-                if self.__player1Matrix[i][j][0] in [1, 2]:
+                if self.__player1Matrix[i][j][0] in [self.__tileCode["frame"], self.__tileCode["cockpit"]]:
                     player1Check = True # player 1 may continue, not all tiles are hit
 
-                if self.__player2Matrix[i][j][0] in [1, 2]:
+                if self.__player2Matrix[i][j][0] in [self.__tileCode["frame"], self.__tileCode["cockpit"]]:
                     player2Check = True # player 2 may continue, not all tiles are hit
 
         if player2Check and player1Check:
@@ -284,7 +301,7 @@ class GameController():
         :return: True if (y,x) is a tile on a plane entirely marked with 1's, False otherwise
         """
         id = matrix[y][x][1]
-        alive = [self.__tileCode["fame"], self.__tileCode["cockpit"]]
+        alive = [self.__tileCode["frame"], self.__tileCode["cockpit"]]
 
         for i in range(8):
             for j in range(8):

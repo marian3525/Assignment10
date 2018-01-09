@@ -1,3 +1,5 @@
+import unittest
+from Controller.GameController import GameController
 class TestSituationDetection(unittest.TestCase):
     def setUp(self):
         self.gc = GameController()
