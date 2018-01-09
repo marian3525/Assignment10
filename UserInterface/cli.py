@@ -2,6 +2,7 @@ from Validator.Validator import Validator
 
 
 class CLI():
+    count = 0
     def __init__(self, gameController, commandParser, validator):
         self.gameController = gameController
         self.commandParser = commandParser
@@ -10,11 +11,12 @@ class CLI():
     def mainLoop(self):
 
         while True:
+            #F3 0; C6 3: example of placed input
 
             self.commandParser.readCommand()
             command = self.commandParser.getCommand()
             params = self.commandParser.getParams()
-
+            type = ""
             if command == "place":
                 if len(params) == 0:
                     type = "placed"
@@ -22,8 +24,8 @@ class CLI():
                 elif params[0] == "rand":
                     # place the user's planes randomly
                     type = "random"
-
-                self.gameController.play(type)  # start the game...
+                if type is not "":
+                    self.gameController.play(type)  # start the game...
             elif command == "help":
                 self.__printHelp()
             elif command == "exit":
@@ -36,6 +38,7 @@ class CLI():
         :param self:
         :return: [col, row]
         """
+        CLI.count += 1
         while True:
             try:
                 coords = input("Coords of the target (ex: B5): ")
@@ -74,7 +77,7 @@ class CLI():
                         x = ord(coords[0]) - ord('A')
 
                     y = int(coords[1])
-                    return [x, y, rot]
+                    return [x, y-1, rot]
                 else:
                     raise ValueError
             except ValueError:
@@ -115,6 +118,7 @@ class CLI():
         :return: None
         """
         print(title)
+        print(CLI.count)
         output = "   "
         for i in range(size + 1):
             if i == 0:

@@ -75,20 +75,4 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(testDestination[3][5][0], self.__tileCode["air"])
 
     def debugPrint(self, matrix, size):
-        print("DEBUG")
-        output = "   "
-        for i in range(size + 1):
-            if i == 0:
-                for l in range(size):
-                    output += str(chr(65 + l) + " ")
-            output += "\n"
-            for j in range(size + 1):
-                if j == 0 and i > 0:
-                    output += str(i) + "| "
-                if i == 0:
-                    output += "--"
-                if i >= 1 and j >= 1:
-                    output += str(matrix[i - 1][j - 1][0]) + " "
-
-        print(output)
-        print("\n")
+        pass

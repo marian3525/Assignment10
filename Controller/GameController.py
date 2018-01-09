@@ -121,7 +121,7 @@ class GameController():
             y = input[1]
             rotations = input[2]
 
-            plane = Plane(rotations, self.getUID())
+            plane = Plane(rotations, self.getUID(), self.__tileCode)
 
             if self.planeFits(dest, x, y):
                 self._insertPlane(dest, plane, x, y)
